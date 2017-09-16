@@ -1,0 +1,185 @@
+.progress-panel-box{
+    position:fixed;
+    bottom:0;
+    left:0;
+    right:0;
+    height:50px;
+    border-top:1px solid #e1e1e2;
+    background-color:#f6f6f8;
+    box-sizing:border-box;
+    display:flex;
+    display:-webkit-flex;
+    .progress-play-btn{
+        display:inline-block;
+        height:100%;
+        padding:0 0 0 8px;
+        line-height:48px;
+    }
+    .progree-info{
+        flex:1;
+        display:flex;
+        display:-webkit-flex;
+        .current-time,.total-time{
+            display:inline-block;
+            padding:0 8px;
+            font-size:13px;
+            color:#666;
+            line-height:48px;
+        }
+        .current-time{
+
+        }
+        .total-time{
+
+        }
+
+    }
+    .icon-btn-group{
+        white-space:nowrap;
+        .btn{
+            cursor:pointer;
+            display:inline-block;
+            vertical-align:middle;
+            width:30px;
+            height:30px;
+            background-image:url(../../dist/assets/images/default-sm-icons.png);
+            background-repeat:no-repeat;
+            background-color:transparent;
+        }
+        .btn-lg{
+            cursor:pointer;
+            display:inline-block;
+            vertical-align:middle;
+            width:36px;
+            height:36px;
+            background-image:url(../../dist/assets/images/default-sm-icons.png);
+            background-repeat:no-repeat;
+            background-color:transparent;
+            background-position:-133px -1px;
+            margin:0 9px;
+            &:hover{
+                background-position:-177px -1px;
+            }
+            &.ispaused{
+                background-position:-41px -1px;
+            }
+        }
+        .btn-prev{
+            background-position:-1px -1px;
+        }
+        .btn-next{
+            background-position:-87px -1px;
+        }
+    }
+
+}
+.components-progress{
+    flex:1;
+    height:3px;
+    position:relative;
+    background-color:#f3f1f1;
+    border-bottom:1px solid #ddd;
+    border-top:1px solid #ddd;
+    background-color:#c2c2c4;
+    cursor:pointer;
+    margin-top: 22px;
+    .components-inner{
+        height:100%;
+        position:absolute;
+        left:0;
+        top:0;
+        width:0%;
+        background-color:#ff8700;
+    }
+    .icon-bar{
+        position: absolute;
+        right: 0;
+        /* height: 100%; */
+        width: 12px;
+        background-color: #ff8700;
+        top: -5px;
+        margin-right: -6px;
+        bottom: -4px;
+        border-radius: 50%;
+        background-color:#fff;
+        border:1px solid #d8d8d8;
+        box-sizing: border-box;
+        cursor:pointer;
+        &:after{
+            content:"";
+            display:block;
+            position:absolute;
+            width:4px;
+            height:4px;
+            left:50%;
+            top:50%;
+            margin-left:-2px;
+            margin-top:-2px;
+            background-color:#e83c3c;
+            border-radius:50%;
+        }
+    }
+}
+.volume{
+    display:inline-block;
+    vertical-align:middle;
+    padding:0 8px;
+    line-height:48px;
+    cursor:pointer;
+    .volume-icon,.volume-progress{
+        display:inline-block;
+        vertical-align:middle;
+        color:#666;
+        cursor:pointer;
+        height: 20px;
+        line-height: 17px;
+        &:hover{
+            color:#333;
+        }
+    }
+    .volume-progress{
+        margin-left:8px;
+        width:10vw;
+        height:3px;
+        border-bottom:1px solid #ddd;
+        border-top:1px solid #ddd;
+        background-color:#c2c2c4;
+        position:relative;
+        .volume-inner{
+            height:100%;
+            position:absolute;
+            left:0;
+            top:0;
+            width:0%;
+            background-color:#ff8700;
+        }
+        .volume-bar{
+            position: absolute;
+            right: 0;
+            /* height: 100%; */
+            width: 12px;
+            background-color: #ff8700;
+            top: -5px;
+            margin-right: -6px;
+            bottom: -4px;
+            border-radius: 50%;
+            background-color:#fff;
+            border:1px solid #d8d8d8;
+            box-sizing: border-box;
+            cursor:pointer;
+            &:after{
+                content:"";
+                display:block;
+                position:absolute;
+                width:4px;
+                height:4px;
+                left:50%;
+                top:50%;
+                margin-left:-2px;
+                margin-top:-2px;
+                background-color:#e83c3c;
+                border-radius:50%;
+            }
+        }
+    }
+}
