@@ -10,9 +10,18 @@ class SongQlist extends React.Component{
            dataSource:this.props.dataSource
         }
     }
+    componentDidMount(){
+        let that=this;
+        Pubsub.subscribe("playend",function(type,nextItem){
+            that.setState({
+                currentItem:nextItem
+            });
+        });
+    }
     handleClick(e,idx){
         this.props.changeSongItem&&this.props.changeSongItem(e,idx);
         Pubsub.publish("songItem",idx);
+        console.log(idx);
         this.setState({
             currentItem:this.state.dataSource[idx]
         });
@@ -20,7 +29,6 @@ class SongQlist extends React.Component{
     render(){
         let dataSource=[];
         let currentItem=this.state.currentItem;
-
         this.props.dataSource.forEach((item,idx)=>{
             dataSource.push(<li onClick={function(e){this.handleClick(e,idx)}.bind(this)} className={currentItem==item?"song-item active":"song-item"} key={idx}><div className="index"><div className="face-panel">{idx+1}</div></div><div className="wamper"><div className="song-name">{item.title}</div><div className="songer">{item.artist}</div></div></li>);
         });

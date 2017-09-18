@@ -4,9 +4,20 @@ import Progress1 from '../progress1.js';
 import '../progress.less';
 import SongQlist from '../SongQlist.js';
 import '../songQlistcss.less';
+import Pubsub from 'pubsub-js';
 
 let duration=null;
 let currentTime=null;
+function getNextCurren(datas,cur){
+    let result=null,maxLen=datas.length;
+    datas.forEach(function(item,idx){
+        if(cur==item){
+            result=idx;
+        }
+    });
+    result=(result==maxLen-1)?0:(result+1);
+    return datas[result];
+}
 
 class Player extends React.Component{
     constructor(props){
@@ -31,9 +42,19 @@ class Player extends React.Component{
                 durationTime:duration
             });
         });
+        $("#jplayer").on($.jPlayer.event.ended,(e)=>{
+            let nextItem=getNextCurren(that.state.dataSource,that.state.currentItem);
+            $("#jplayer").jPlayer("setMedia",{
+                mp3:nextItem["src"]
+            }).jPlayer("play");
+            Pubsub.publish("playend",nextItem);
+            $("#jplayer").jPlayer("play");
+        });
+
     }
     componentWillUnmount(){
         $("#jplayer").off($.jPlayer.event.timeupdate);
+        $("#jplayer").off($.jPlayer.event.ended);
     }
     onSongChangeHandle(e,idx){
         $("#jplayer").jPlayer("setMedia",{

@@ -2,8 +2,13 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import Header from '../components/header.js';
 import Player from '../components/player/player';
+import Test from '../components/test/test.js';
+import Test1 from '../components/test/test1.js';
 
 import DataSource from '../data/dataSource.js';
+
+import actions from '../actions/index.js';
+console.log(actions);
 
 
 
@@ -36,9 +41,13 @@ class App extends React.Component{
 
     render(){
         let progress=this.state.progress;
+        let test=false;
         return (
             <div>
                 <Header/>
+                {
+                    test?<div><Test/><Test1/></div>:""
+                }
                 <Player currentItem={this.state.currentItem} dataSource={this.state.dataSource}/>
             </div>
         )
