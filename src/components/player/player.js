@@ -44,6 +44,10 @@ class Player extends React.Component{
         });
         $("#jplayer").on($.jPlayer.event.ended,(e)=>{
             let nextItem=getNextCurren(that.state.dataSource,that.state.currentItem);
+            console.log(nextItem);
+            that.setState({
+               currentItem:nextItem
+            });
             $("#jplayer").jPlayer("setMedia",{
                 mp3:nextItem["src"]
             }).jPlayer("play");
@@ -60,6 +64,9 @@ class Player extends React.Component{
         $("#jplayer").jPlayer("setMedia",{
             mp3:this.state.dataSource[idx]["src"]
         }).jPlayer("play");
+        this.setState({
+           currentItem:this.state.dataSource[idx]
+        });
     }
     onVolumeChange(ispaused,num){
         if(ispaused){

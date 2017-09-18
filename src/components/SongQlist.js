@@ -21,7 +21,6 @@ class SongQlist extends React.Component{
     handleClick(e,idx){
         this.props.changeSongItem&&this.props.changeSongItem(e,idx);
         Pubsub.publish("songItem",idx);
-        console.log(idx);
         this.setState({
             currentItem:this.state.dataSource[idx]
         });
