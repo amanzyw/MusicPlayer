@@ -52,6 +52,9 @@ class Player extends React.Component{
                 mp3:nextItem["src"]
             }).jPlayer("play");
             Pubsub.publish("playend",nextItem);
+            that.setState({
+                currentItem:nextItem
+            });
             $("#jplayer").jPlayer("play");
         });
 
@@ -85,7 +88,8 @@ class Player extends React.Component{
     onProgressChangeHandle(percent){
         $("#jplayer").jPlayer("play",percent*duration);
         this.setState({
-            progress:percent
+            progress:percent,
+            isPaused:false
         });
     }
     //播放暂停

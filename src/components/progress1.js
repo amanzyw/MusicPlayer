@@ -31,6 +31,9 @@ class Progress1 extends React.Component{
             left=barRect.left,
             currentLeft=e.clientX;
         var percent=(currentLeft-left)/width;
+        this.setState({
+            isPaused:false
+        });
         this.props.onProgressChange&&this.props.onProgressChange(percent);
     }
     handlePaseOrPlay(){
@@ -52,6 +55,7 @@ class Progress1 extends React.Component{
             left=barRect.left,
             currentLeft=e.clientX;
         var percent=(currentLeft-left)/width;
+
         this.props.volumeChange&&this.props.volumeChange(false,percent);
     }
     onSongsChange(e,indexOffset){
@@ -71,7 +75,9 @@ class Progress1 extends React.Component{
             index--;
             index=index<0?dataSource.length-1:index;
         }
-        console.log(index);
+        this.setState({
+            isPaused:false
+        });
         this.props.changeSongItem&&this.props.changeSongItem(e,index);
     }
     componentDidMount(){
