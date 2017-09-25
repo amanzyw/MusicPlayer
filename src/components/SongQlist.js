@@ -27,9 +27,10 @@ class SongQlist extends React.Component{
     }
     render(){
         let dataSource=[];
-        let currentItem=this.state.currentItem;
+        let currentItem=this.props.currentItem;
+        let isPaused=this.props.isPaused;
         this.props.dataSource.forEach((item,idx)=>{
-            dataSource.push(<li onClick={function(e){this.handleClick(e,idx)}.bind(this)} className={currentItem==item?"song-item active":"song-item"} key={idx}><div className="index"><div className="face-panel">{idx+1}</div></div><div className="wamper"><div className="song-name">{item.title}</div><div className="songer">{item.artist}</div></div></li>);
+            dataSource.push(<li onClick={function(e){this.handleClick(e,idx)}.bind(this)} className={currentItem==item?"song-item active":"song-item"} key={idx} data-pause={isPaused==true?"true":"false"}><div className="index"><div className="face-panel">{idx+1}</div></div><div className="wamper"><div className="song-name">{item.title}</div><div className="songer">{item.artist}</div></div></li>);
         });
         return (
             <div>

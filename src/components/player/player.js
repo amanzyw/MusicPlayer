@@ -24,6 +24,7 @@ class Player extends React.Component{
         super(props);
         this.state={
             progress:"-",
+            isPaused:true,
             currentTime:"-",
             durationTime:"-",
             volume:0.8,
@@ -44,10 +45,9 @@ class Player extends React.Component{
         });
         $("#jplayer").on($.jPlayer.event.ended,(e)=>{
             let nextItem=getNextCurren(that.state.dataSource,that.state.currentItem);
-            console.log(nextItem);
-            that.setState({
+            /*that.setState({
                currentItem:nextItem
-            });
+            });*/
             $("#jplayer").jPlayer("setMedia",{
                 mp3:nextItem["src"]
             }).jPlayer("play");
@@ -65,7 +65,8 @@ class Player extends React.Component{
             mp3:this.state.dataSource[idx]["src"]
         }).jPlayer("play");
         this.setState({
-           currentItem:this.state.dataSource[idx]
+           currentItem:this.state.dataSource[idx],
+           isPaused:false
         });
     }
     onVolumeChange(ispaused,num){
@@ -95,6 +96,9 @@ class Player extends React.Component{
         }else{
             $("#jplayer").jPlayer( "play",currentTime);
         }
+        this.setState({
+            isPaused:isPaused
+        })
     }
     render(){
         let currentItem=this.state.currentItem;
@@ -103,10 +107,11 @@ class Player extends React.Component{
         let currentTime=this.state.currentTime;
         let durationTime=this.state.durationTime;
         let volume=this.state.volume;
+        let isPaused=this.state.isPaused;
         return (
             <div>
-                <Progress1 progress={progress} currentTime={currentTime} durationTime={durationTime} volume={volume} onProgressChange={this.onProgressChangeHandle.bind(this)} pauseOrPlay={this.onPaseOrPlayChangeHandle.bind(this)} volumeChange={this.onVolumeChange.bind(this)}></Progress1>
-                <SongQlist dataSource={dataSource} currentItem={currentItem} changeSongItem={this.onSongChangeHandle.bind(this)}></SongQlist>
+                <Progress1 dataSource={dataSource} currentItem={currentItem} changeSongItem={this.onSongChangeHandle.bind(this)} progress={progress} currentTime={currentTime} durationTime={durationTime} volume={volume} onProgressChange={this.onProgressChangeHandle.bind(this)} pauseOrPlay={this.onPaseOrPlayChangeHandle.bind(this)} volumeChange={this.onVolumeChange.bind(this)}></Progress1>
+                <SongQlist isPaused={isPaused} dataSource={dataSource} currentItem={currentItem} changeSongItem={this.onSongChangeHandle.bind(this)}></SongQlist>
             </div>
         )
     }

@@ -54,6 +54,26 @@ class Progress1 extends React.Component{
         var percent=(currentLeft-left)/width;
         this.props.volumeChange&&this.props.volumeChange(false,percent);
     }
+    onSongsChange(e,indexOffset){
+        var currentItem=this.props.currentItem,
+            dataSource=this.props.dataSource,
+            index=null;
+        dataSource.forEach(function(item,idx){
+            if(item==currentItem){
+                index=idx;
+            }
+        });
+        if(indexOffset==1){
+            index++;
+            index=index>=dataSource.length?0:index;
+        }
+        if(indexOffset==-1){
+            index--;
+            index=index<0?dataSource.length-1:index;
+        }
+        console.log(index);
+        this.props.changeSongItem&&this.props.changeSongItem(e,index);
+    }
     componentDidMount(){
         let that=this;
         Pubsub.subscribe("songItem",function(type,idx){
@@ -72,10 +92,10 @@ class Progress1 extends React.Component{
             <div className="progress-panel-box">
                     <div className="icon-btn-group">
                 <div className="progress-play-btn">
-                        <div className="btn-prev btn" title="上一首">
+                        <div className="btn-prev btn" title="上一首" onClick={function(e){this.onSongsChange(e,-1)}.bind(this)}>
                         </div>
                         <div onClick={this.handlePaseOrPlay.bind(this)} className={isPaused?'btn-current btn-lg ispaused':'btn-current btn-lg'}></div>
-                        <div className="btn-next btn" title="下一首"></div>
+                        <div className="btn-next btn" title="下一首" onClick={function(e){this.onSongsChange(e,1)}.bind(this)}></div>
                     </div>
                 </div>
                 <div className="progree-info">
