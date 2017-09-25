@@ -24003,6 +24003,7 @@ var Player = function (_React$Component) {
 
         _this.state = {
             progress: "-",
+            isPaused: true,
             currentTime: "-",
             durationTime: "-",
             volume: 0.8,
@@ -24029,10 +24030,16 @@ var Player = function (_React$Component) {
             });
             $("#jplayer").on($.jPlayer.event.ended, function (e) {
                 var nextItem = getNextCurren(that.state.dataSource, that.state.currentItem);
+                /*that.setState({
+                   currentItem:nextItem
+                });*/
                 $("#jplayer").jPlayer("setMedia", {
                     mp3: nextItem["src"]
                 }).jPlayer("play");
                 _pubsubJs2.default.publish("playend", nextItem);
+                that.setState({
+                    currentItem: nextItem
+                });
                 $("#jplayer").jPlayer("play");
             });
         }
@@ -24048,6 +24055,10 @@ var Player = function (_React$Component) {
             $("#jplayer").jPlayer("setMedia", {
                 mp3: this.state.dataSource[idx]["src"]
             }).jPlayer("play");
+            this.setState({
+                currentItem: this.state.dataSource[idx],
+                isPaused: false
+            });
         }
     }, {
         key: 'onVolumeChange',
@@ -24069,7 +24080,8 @@ var Player = function (_React$Component) {
         value: function onProgressChangeHandle(percent) {
             $("#jplayer").jPlayer("play", percent * duration);
             this.setState({
-                progress: percent
+                progress: percent,
+                isPaused: false
             });
         }
         //播放暂停
@@ -24083,6 +24095,9 @@ var Player = function (_React$Component) {
             } else {
                 $("#jplayer").jPlayer("play", currentTime);
             }
+            this.setState({
+                isPaused: isPaused
+            });
         }
     }, {
         key: 'render',
@@ -24093,11 +24108,12 @@ var Player = function (_React$Component) {
             var currentTime = this.state.currentTime;
             var durationTime = this.state.durationTime;
             var volume = this.state.volume;
+            var isPaused = this.state.isPaused;
             return _react2.default.createElement(
                 'div',
                 null,
-                _react2.default.createElement(_progress2.default, { progress: progress, currentTime: currentTime, durationTime: durationTime, volume: volume, onProgressChange: this.onProgressChangeHandle.bind(this), pauseOrPlay: this.onPaseOrPlayChangeHandle.bind(this), volumeChange: this.onVolumeChange.bind(this) }),
-                _react2.default.createElement(_SongQlist2.default, { dataSource: dataSource, currentItem: currentItem, changeSongItem: this.onSongChangeHandle.bind(this) })
+                _react2.default.createElement(_progress2.default, { dataSource: dataSource, currentItem: currentItem, changeSongItem: this.onSongChangeHandle.bind(this), progress: progress, currentTime: currentTime, durationTime: durationTime, volume: volume, onProgressChange: this.onProgressChangeHandle.bind(this), pauseOrPlay: this.onPaseOrPlayChangeHandle.bind(this), volumeChange: this.onVolumeChange.bind(this) }),
+                _react2.default.createElement(_SongQlist2.default, { isPaused: isPaused, dataSource: dataSource, currentItem: currentItem, changeSongItem: this.onSongChangeHandle.bind(this) })
             );
         }
     }]);
@@ -24179,6 +24195,9 @@ var Progress1 = function (_React$Component) {
                 left = barRect.left,
                 currentLeft = e.clientX;
             var percent = (currentLeft - left) / width;
+            this.setState({
+                isPaused: false
+            });
             this.props.onProgressChange && this.props.onProgressChange(percent);
         }
     }, {
@@ -24206,7 +24225,32 @@ var Progress1 = function (_React$Component) {
                 left = barRect.left,
                 currentLeft = e.clientX;
             var percent = (currentLeft - left) / width;
+
             this.props.volumeChange && this.props.volumeChange(false, percent);
+        }
+    }, {
+        key: 'onSongsChange',
+        value: function onSongsChange(e, indexOffset) {
+            var currentItem = this.props.currentItem,
+                dataSource = this.props.dataSource,
+                index = null;
+            dataSource.forEach(function (item, idx) {
+                if (item == currentItem) {
+                    index = idx;
+                }
+            });
+            if (indexOffset == 1) {
+                index++;
+                index = index >= dataSource.length ? 0 : index;
+            }
+            if (indexOffset == -1) {
+                index--;
+                index = index < 0 ? dataSource.length - 1 : index;
+            }
+            this.setState({
+                isPaused: false
+            });
+            this.props.changeSongItem && this.props.changeSongItem(e, index);
         }
     }, {
         key: 'componentDidMount',
@@ -24235,9 +24279,13 @@ var Progress1 = function (_React$Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'progress-play-btn' },
-                        _react2.default.createElement('div', { className: 'btn-prev btn', title: '\u4E0A\u4E00\u9996' }),
+                        _react2.default.createElement('div', { className: 'btn-prev btn', title: '\u4E0A\u4E00\u9996', onClick: function (e) {
+                                this.onSongsChange(e, -1);
+                            }.bind(this) }),
                         _react2.default.createElement('div', { onClick: this.handlePaseOrPlay.bind(this), className: isPaused ? 'btn-current btn-lg ispaused' : 'btn-current btn-lg' }),
-                        _react2.default.createElement('div', { className: 'btn-next btn', title: '\u4E0B\u4E00\u9996' })
+                        _react2.default.createElement('div', { className: 'btn-next btn', title: '\u4E0B\u4E00\u9996', onClick: function (e) {
+                                this.onSongsChange(e, 1);
+                            }.bind(this) })
                     )
                 ),
                 _react2.default.createElement(
@@ -24299,7 +24347,7 @@ exports = module.exports = __webpack_require__(51)(undefined);
 
 
 // module
-exports.push([module.i, ".progress-panel-box {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 50px;\n  border-top: 1px solid #e1e1e2;\n  background-color: #f6f6f8;\n  box-sizing: border-box;\n  display: flex;\n  display: -webkit-flex;\n}\n.progress-panel-box .progress-play-btn {\n  display: inline-block;\n  height: 100%;\n  padding: 0 0 0 8px;\n  line-height: 48px;\n}\n.progress-panel-box .progree-info {\n  flex: 1;\n  display: flex;\n  display: -webkit-flex;\n}\n.progress-panel-box .progree-info .current-time,\n.progress-panel-box .progree-info .total-time {\n  display: inline-block;\n  padding: 0 8px;\n  font-size: 13px;\n  color: #666;\n  line-height: 48px;\n}\n.progress-panel-box .icon-btn-group {\n  white-space: nowrap;\n}\n.progress-panel-box .icon-btn-group .btn {\n  cursor: pointer;\n  display: inline-block;\n  vertical-align: middle;\n  width: 30px;\n  height: 30px;\n  background-image: url(" + __webpack_require__(87) + ");\n  background-repeat: no-repeat;\n  background-color: transparent;\n}\n.progress-panel-box .icon-btn-group .btn-lg {\n  cursor: pointer;\n  display: inline-block;\n  vertical-align: middle;\n  width: 36px;\n  height: 36px;\n  background-image: url(" + __webpack_require__(87) + ");\n  background-repeat: no-repeat;\n  background-color: transparent;\n  background-position: -133px -1px;\n  margin: 0 9px;\n}\n.progress-panel-box .icon-btn-group .btn-lg:hover {\n  background-position: -177px -1px;\n}\n.progress-panel-box .icon-btn-group .btn-lg.ispaused {\n  background-position: -41px -1px;\n}\n.progress-panel-box .icon-btn-group .btn-prev {\n  background-position: -1px -1px;\n}\n.progress-panel-box .icon-btn-group .btn-next {\n  background-position: -87px -1px;\n}\n.components-progress {\n  flex: 1;\n  height: 3px;\n  position: relative;\n  background-color: #f3f1f1;\n  border-bottom: 1px solid #ddd;\n  border-top: 1px solid #ddd;\n  background-color: #c2c2c4;\n  cursor: pointer;\n  margin-top: 22px;\n}\n.components-progress .components-inner {\n  height: 100%;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 0%;\n  background-color: #ff8700;\n}\n.components-progress .icon-bar {\n  position: absolute;\n  right: 0;\n  /* height: 100%; */\n  width: 12px;\n  background-color: #ff8700;\n  top: -5px;\n  margin-right: -6px;\n  bottom: -4px;\n  border-radius: 50%;\n  background-color: #fff;\n  border: 1px solid #d8d8d8;\n  box-sizing: border-box;\n  cursor: pointer;\n}\n.components-progress .icon-bar:after {\n  content: \"\";\n  display: block;\n  position: absolute;\n  width: 4px;\n  height: 4px;\n  left: 50%;\n  top: 50%;\n  margin-left: -2px;\n  margin-top: -2px;\n  background-color: #e83c3c;\n  border-radius: 50%;\n}\n.volume {\n  display: inline-block;\n  vertical-align: middle;\n  padding: 0 8px;\n  line-height: 48px;\n  cursor: pointer;\n}\n.volume .volume-icon,\n.volume .volume-progress {\n  display: inline-block;\n  vertical-align: middle;\n  color: #666;\n  cursor: pointer;\n  height: 20px;\n  line-height: 17px;\n}\n.volume .volume-icon:hover,\n.volume .volume-progress:hover {\n  color: #333;\n}\n.volume .volume-progress {\n  margin-left: 8px;\n  width: 10vw;\n  height: 3px;\n  border-bottom: 1px solid #ddd;\n  border-top: 1px solid #ddd;\n  background-color: #c2c2c4;\n  position: relative;\n}\n.volume .volume-progress .volume-inner {\n  height: 100%;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 0%;\n  background-color: #ff8700;\n}\n.volume .volume-progress .volume-bar {\n  position: absolute;\n  right: 0;\n  /* height: 100%; */\n  width: 12px;\n  background-color: #ff8700;\n  top: -5px;\n  margin-right: -6px;\n  bottom: -4px;\n  border-radius: 50%;\n  background-color: #fff;\n  border: 1px solid #d8d8d8;\n  box-sizing: border-box;\n  cursor: pointer;\n}\n.volume .volume-progress .volume-bar:after {\n  content: \"\";\n  display: block;\n  position: absolute;\n  width: 4px;\n  height: 4px;\n  left: 50%;\n  top: 50%;\n  margin-left: -2px;\n  margin-top: -2px;\n  background-color: #e83c3c;\n  border-radius: 50%;\n}\n", ""]);
+exports.push([module.i, ".progress-panel-box {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 50px;\n  border-top: 1px solid #e1e1e2;\n  background-color: #f6f6f8;\n  box-sizing: border-box;\n  display: flex;\n  display: -webkit-flex;\n}\n.progress-panel-box .progress-play-btn {\n  display: inline-block;\n  height: 100%;\n  padding: 0 0 0 8px;\n  line-height: 48px;\n}\n.progress-panel-box .progree-info {\n  flex: 1;\n  display: flex;\n  display: -webkit-flex;\n}\n.progress-panel-box .progree-info .current-time,\n.progress-panel-box .progree-info .total-time {\n  display: inline-block;\n  padding: 0 8px;\n  font-size: 13px;\n  color: #666;\n  line-height: 48px;\n}\n.progress-panel-box .icon-btn-group {\n  white-space: nowrap;\n}\n.progress-panel-box .icon-btn-group .btn {\n  cursor: pointer;\n  display: inline-block;\n  vertical-align: middle;\n  width: 30px;\n  height: 30px;\n  background-image: url(" + __webpack_require__(87) + ");\n  background-repeat: no-repeat;\n  background-color: transparent;\n}\n.progress-panel-box .icon-btn-group .btn-lg {\n  cursor: pointer;\n  display: inline-block;\n  vertical-align: middle;\n  width: 36px;\n  height: 36px;\n  background-image: url(" + __webpack_require__(87) + ");\n  background-repeat: no-repeat;\n  background-color: transparent;\n  background-position: -133px -1px;\n  margin: 0 9px;\n}\n.progress-panel-box .icon-btn-group .btn-lg:hover {\n  background-position: -133px -1px;\n}\n.progress-panel-box .icon-btn-group .btn-lg.ispaused {\n  background-position: -41px -1px;\n}\n.progress-panel-box .icon-btn-group .btn-prev {\n  background-position: -1px -1px;\n}\n.progress-panel-box .icon-btn-group .btn-next {\n  background-position: -87px -1px;\n}\n.components-progress {\n  flex: 1;\n  height: 3px;\n  position: relative;\n  background-color: #f3f1f1;\n  border-bottom: 1px solid #ddd;\n  border-top: 1px solid #ddd;\n  background-color: #c2c2c4;\n  cursor: pointer;\n  margin-top: 22px;\n}\n.components-progress .components-inner {\n  height: 100%;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 0%;\n  background-color: #ff8700;\n}\n.components-progress .icon-bar {\n  position: absolute;\n  right: 0;\n  /* height: 100%; */\n  width: 12px;\n  background-color: #ff8700;\n  top: -5px;\n  margin-right: -6px;\n  bottom: -4px;\n  border-radius: 50%;\n  background-color: #fff;\n  border: 1px solid #d8d8d8;\n  box-sizing: border-box;\n  cursor: pointer;\n}\n.components-progress .icon-bar:after {\n  content: \"\";\n  display: block;\n  position: absolute;\n  width: 4px;\n  height: 4px;\n  left: 50%;\n  top: 50%;\n  margin-left: -2px;\n  margin-top: -2px;\n  background-color: #e83c3c;\n  border-radius: 50%;\n}\n.volume {\n  display: inline-block;\n  vertical-align: middle;\n  padding: 0 8px;\n  line-height: 48px;\n  cursor: pointer;\n}\n.volume .volume-icon,\n.volume .volume-progress {\n  display: inline-block;\n  vertical-align: middle;\n  color: #666;\n  cursor: pointer;\n  height: 20px;\n  line-height: 17px;\n}\n.volume .volume-icon:hover,\n.volume .volume-progress:hover {\n  color: #333;\n}\n.volume .volume-progress {\n  margin-left: 8px;\n  width: 10vw;\n  height: 3px;\n  border-bottom: 1px solid #ddd;\n  border-top: 1px solid #ddd;\n  background-color: #c2c2c4;\n  position: relative;\n}\n.volume .volume-progress .volume-inner {\n  height: 100%;\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 0%;\n  background-color: #ff8700;\n}\n.volume .volume-progress .volume-bar {\n  position: absolute;\n  right: 0;\n  /* height: 100%; */\n  width: 12px;\n  background-color: #ff8700;\n  top: -5px;\n  margin-right: -6px;\n  bottom: -4px;\n  border-radius: 50%;\n  background-color: #fff;\n  border: 1px solid #d8d8d8;\n  box-sizing: border-box;\n  cursor: pointer;\n}\n.volume .volume-progress .volume-bar:after {\n  content: \"\";\n  display: block;\n  position: absolute;\n  width: 4px;\n  height: 4px;\n  left: 50%;\n  top: 50%;\n  margin-left: -2px;\n  margin-top: -2px;\n  background-color: #e83c3c;\n  border-radius: 50%;\n}\n", ""]);
 
 // exports
 
@@ -24369,7 +24417,6 @@ var SongQlist = function (_React$Component) {
         value: function handleClick(e, idx) {
             this.props.changeSongItem && this.props.changeSongItem(e, idx);
             _pubsubJs2.default.publish("songItem", idx);
-            console.log(idx);
             this.setState({
                 currentItem: this.state.dataSource[idx]
             });
@@ -24380,13 +24427,14 @@ var SongQlist = function (_React$Component) {
             var _this2 = this;
 
             var dataSource = [];
-            var currentItem = this.state.currentItem;
+            var currentItem = this.props.currentItem;
+            var isPaused = this.props.isPaused;
             this.props.dataSource.forEach(function (item, idx) {
                 dataSource.push(_react2.default.createElement(
                     'li',
                     { onClick: function (e) {
                             this.handleClick(e, idx);
-                        }.bind(_this2), className: currentItem == item ? "song-item active" : "song-item", key: idx },
+                        }.bind(_this2), className: currentItem == item ? "song-item active" : "song-item", key: idx, 'data-pause': isPaused == true ? "true" : "false" },
                     _react2.default.createElement(
                         'div',
                         { className: 'index' },
@@ -24442,7 +24490,7 @@ exports = module.exports = __webpack_require__(51)(undefined);
 
 
 // module
-exports.push([module.i, ".song-list-component .song-wamp {\n  border-top: 1px solid #e3e3e3;\n  border-bottom: 1px solid #e3e3e3;\n}\n.song-list-component .song-item {\n  display: flex;\n  display: -webkit-flex;\n  align-items: center;\n  cursor: pointer;\n  border-top: 1px solid transparent;\n  border-bottom: 1px solid transparent;\n}\n.song-list-component .song-item .index {\n  display: inline-block;\n  width: 30px;\n  height: 30px;\n  line-height: 30px;\n  vertical-align: middle;\n  text-align: center;\n  font-size: 16px;\n  color: #999;\n  position: relative;\n  border-radius: 50%;\n  overflow: hidden;\n  border: 1px solid #ddd;\n  margin: 0 10px;\n}\n.song-list-component .song-item.active .index {\n  color: #e83c3c;\n}\n.song-list-component .song-item .wamper {\n  flex: 1;\n  -webkit-flex: 1;\n  padding: 8px 3px;\n  border-bottom: 1px solid #f1f1f1;\n}\n.song-list-component .song-item .song-name {\n  font-size: 16px;\n  font-weight: bold;\n  color: #333;\n  line-height: 26px;\n}\n.song-list-component .song-item .songer {\n  font-size: 14px;\n  font-weight: normal;\n  color: #666;\n  line-height: 26px;\n}\n.song-list-component .song-item:first-child .wamper {\n  border-top: none;\n}\n.song-list-component .song-item:last-child .wamper {\n  border-bottom: none;\n}\n.song-list-component .song-item.active,\n.song-list-component .song-item:focus,\n.song-list-component .song-item:hover {\n  /* background-color:#f5f5f5;\n            border-top: 1px solid #e3e3e3;\n            border-bottom: 1px solid #e3e3e3; */\n}\n.song-list-component .song-item * {\n  transition: all 0.3s ease-in-out;\n}\n.song-list-component .face-panel,\n.song-list-component .back-panel {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  bottom: 0;\n}\n.song-list-component .face-panel {\n  transform: rotate(20deg);\n  z-index: 2;\n}\n@keyframes rotate {\n  0% {\n    transform: rotate(0deg);\n  }\n  100% {\n    transform: rotate(360deg);\n  }\n}\n", ""]);
+exports.push([module.i, ".song-list-component .song-wamp {\n  border-top: 1px solid #e3e3e3;\n  border-bottom: 1px solid #e3e3e3;\n}\n.song-list-component .song-item {\n  display: flex;\n  display: -webkit-flex;\n  align-items: center;\n  cursor: pointer;\n  border-top: 1px solid transparent;\n  border-bottom: 1px solid transparent;\n}\n.song-list-component .song-item .index {\n  display: inline-block;\n  width: 30px;\n  height: 30px;\n  line-height: 30px;\n  vertical-align: middle;\n  text-align: center;\n  font-size: 16px;\n  color: #999;\n  position: relative;\n  border-radius: 50%;\n  overflow: hidden;\n  border: 1px solid #ddd;\n  margin: 0 10px;\n}\n.song-list-component .song-item.active .index {\n  color: #e83c3c;\n}\n.song-list-component .song-item[data-pause=\"false\"].active .index {\n  animation: rotate 3s linear infinite;\n}\n.song-list-component .song-item .wamper {\n  flex: 1;\n  -webkit-flex: 1;\n  padding: 8px 3px;\n  border-bottom: 1px solid #f1f1f1;\n}\n.song-list-component .song-item .song-name {\n  font-size: 16px;\n  font-weight: bold;\n  color: #333;\n  line-height: 26px;\n}\n.song-list-component .song-item .songer {\n  font-size: 14px;\n  font-weight: normal;\n  color: #666;\n  line-height: 26px;\n}\n.song-list-component .song-item:first-child .wamper {\n  border-top: none;\n}\n.song-list-component .song-item:last-child .wamper {\n  border-bottom: none;\n}\n.song-list-component .song-item.active,\n.song-list-component .song-item:focus,\n.song-list-component .song-item:hover {\n  /* background-color:#f5f5f5;\n            border-top: 1px solid #e3e3e3;\n            border-bottom: 1px solid #e3e3e3; */\n}\n.song-list-component .song-item * {\n  transition: all 0.3s ease-in-out;\n}\n.song-list-component .face-panel,\n.song-list-component .back-panel {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 0;\n  bottom: 0;\n}\n.song-list-component .face-panel {\n  /* transform: rotate(20deg); */\n  z-index: 2;\n}\n@keyframes rotate {\n  0% {\n    transform: rotate(0deg);\n  }\n  100% {\n    transform: rotate(360deg);\n  }\n}\n", ""]);
 
 // exports
 
@@ -25227,19 +25275,29 @@ var a = [{
     "src": "./assets/music/1.mp3"
 }, {
     "id": 2,
-    "title": "恋爱循环",
-    "artist": "花泽香菜",
-    "src": "./assets/music/2.mp3"
+    "title": "你若成风",
+    "artist": "许嵩",
+    "src": "./assets/music/4.mp3"
 }, {
     "id": 3,
+    "title": "董小姐",
+    "artist": "宋冬野",
+    "src": "./assets/music/5.mp3"
+}, {
+    "id": 4,
     "title": "小小恋歌",
     "artist": "新恒结衣",
     "src": "./assets/music/3.mp3"
 }, {
-    "id": 4,
-    "title": "你若成风",
-    "artist": "许嵩",
-    "src": "./assets/music/4.mp3"
+    "id": 5,
+    "title": "恋爱循环",
+    "artist": "花泽香菜",
+    "src": "./assets/music/2.mp3"
+}, {
+    "id": 6,
+    "title": "Owl City - The Saltwater Room",
+    "artist": "Adam Young",
+    "src": "./assets/music/6.mp3"
 }];
 exports.default = a;
 
